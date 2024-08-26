@@ -37,7 +37,7 @@ loadPasswordList();
 app.get("/apiCall", async (req, res) => {
   const openai = new OpenAI({
     apiKey: openAiKey,
-    baseURL: openAiUrl,
+    baseURL: "https://api.aimlapi.com",
   });
 
   const key = req.query.key;
@@ -46,7 +46,10 @@ app.get("/apiCall", async (req, res) => {
   const decodedPwd = passwordDecoder(pwd, key);
 
   try {
+
+    console.log()
     const chatCompletion = await openai.chat.completions.create({
+      
       model: aiModel,
       messages: [
         { role: "system", content: sysContent },
@@ -67,7 +70,7 @@ app.get("/apiCall", async (req, res) => {
 app.get("/apiCallUsername", async (req, res) => {
   const openai = new OpenAI({
     apiKey: openAiKey,
-    baseURL: openAiUrl,
+    baseURL: "https://api.aimlapi.com",
   });
 
   const adj1 = req.query.adj1;
