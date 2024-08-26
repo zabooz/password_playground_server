@@ -50,7 +50,7 @@ app.get("/apiCall", async (req, res) => {
     console.log()
     const chatCompletion = await openai.chat.completions.create({
       
-      model: aiModel,
+      model: "meta-llama/Meta-Llama-3-70B-Instruct-Lite",
       messages: [
         { role: "system", content: sysContent },
         { role: "user", content: decodedPwd },
@@ -81,7 +81,7 @@ app.get("/apiCallUsername", async (req, res) => {
 
   try {
     const chatCompletion = await openai.chat.completions.create({
-      model: aiModel,
+      model: "meta-llama/Meta-Llama-3-70B-Instruct-Lite",
       messages: [
         { role: "system", content: sysContent },
         { role: "user", content: apiString },
