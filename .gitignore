@@ -1,0 +1,3 @@
+# Ignoriere .env-Dateien
+.env
+.env.*
