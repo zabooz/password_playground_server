@@ -111,6 +111,14 @@ app.get("/bruteForceSimple", async (req, res) => {
 
   currentProcess = bruteForceSimple(decodedPwd);
 
+  setTimeout(() => {
+
+    currentProcess.abort()
+    currentProcess = null;
+
+  },5000)
+
+
   currentProcess.promise
     .then((result) => {
       res.send(result);
