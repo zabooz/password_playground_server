@@ -94,8 +94,12 @@ app.get("/apiCallUsername", async (req, res) => {
     res.send(result);
     console.log(result);
   } catch (error) {
-    console.log(error);
-    res.send("no");
+        console.error("Error in API call or processing:", error);
+
+        res.status(500).json({
+          success: false,
+
+        });
   }
 });
 
