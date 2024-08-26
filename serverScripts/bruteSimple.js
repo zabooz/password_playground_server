@@ -7,12 +7,12 @@ export function bruteForceSimple(targetPassword) {
   const mode = "Simple";
   const startTime = Date.now();
   let abort = false;
-
+  let maxTime;
   console.log("brute force started");
 
   function generate(attempt, length, resolve) {
 
-    const maxTime =  (Date.now() - startTime)  /(1000*60) >= 1;
+    maxTime =  (Date.now() - startTime)  /(1000*60) >= 1;
     console.log(maxTime, (Date.now() - startTime) / (1000 * 60));
 
     if (found || abort || maxTime) return resolve();
