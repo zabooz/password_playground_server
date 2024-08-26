@@ -15,6 +15,7 @@ const port = process.env.PORT || 3000; // Set the port from the environment vari
 const dropboxFileUrl = process.env.DROPBOX_FILE_URL; // Set the Dropbox file URL from the environment variable
 const openAiKey = process.env.OPENAI_KEY
 const openAiUrl = process.env.OPENAI_URL
+const aiModel = process.env.AIMODEL
 app.use(cors());
 
 let passwordList;
@@ -46,7 +47,7 @@ app.get("/apiCall", async (req, res) => {
 
   try {
     const chatCompletion = await openai.chat.completions.create({
-      model: "meta-llama/Meta-Llama-3-70B-Instruct-Lite",
+      model: aiModel,
       messages: [
         { role: "system", content: sysContent },
         { role: "user", content: decodedPwd },
@@ -77,7 +78,7 @@ app.get("/apiCallUsername", async (req, res) => {
 
   try {
     const chatCompletion = await openai.chat.completions.create({
-      model: "meta-llama/Meta-Llama-3-70B-Instruct-Lite",
+      model: aiModel,
       messages: [
         { role: "system", content: sysContent },
         { role: "user", content: apiString },
