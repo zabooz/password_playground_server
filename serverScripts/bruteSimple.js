@@ -11,7 +11,11 @@ export function bruteForceSimple(targetPassword) {
   console.log("brute force started");
 
   function generate(attempt, length, resolve) {
-    if (found || abort) return resolve();
+
+    const maxTime =  (Date.now() - startTime)  /(1000*60) === 0.1;
+    console.log(maxTime)
+
+    if (found || abort || maxTime) return resolve();
 
     if (length === 0) {
       count++;
