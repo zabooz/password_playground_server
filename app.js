@@ -126,6 +126,9 @@ app.get("/bruteForceSimple", async (req, res) => {
     });
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
 app.get("/bruteForceLibrary", async (req, res) => {
   const key = req.query.key;
   const password = req.query.pwd;
