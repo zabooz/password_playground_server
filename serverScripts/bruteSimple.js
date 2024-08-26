@@ -46,7 +46,7 @@ export function bruteForceSimple(targetPassword) {
   async function run() {
     for (let length = 1; length <= maxLength && !found; length++) {
       await new Promise((resolve) => generate("", length, resolve));
-      if (found || abort) {
+      if (found || abort || maxTime) {
         const time = (Date.now() - startTime) / 1000 + " sec";
         return [targetPassword, count, mode, time];
       }
