@@ -14,6 +14,7 @@ const app = express(); // Create an Express application
 const port = process.env.PORT || 3000; // Set the port from the environment variable or default to 3000
 const dropboxFileUrl = process.env.DROPBOX_FILE_URL; // Set the Dropbox file URL from the environment variable
 const openAiKey = process.env.OPENAI_KEY
+const openAiUrl = process.env.OPENAI_URL
 app.use(cors());
 
 let passwordList;
@@ -35,7 +36,7 @@ loadPasswordList();
 app.get("/apiCall", async (req, res) => {
   const openai = new OpenAI({
     apiKey: openAiKey,
-    baseURL: "https://api.aimlapi.com",
+    baseURL: openAiUrl,
   });
 
   const key = req.query.key;
@@ -64,8 +65,8 @@ app.get("/apiCall", async (req, res) => {
 
 app.get("/apiCallUsername", async (req, res) => {
   const openai = new OpenAI({
-    apiKey: "d547239b0a3d4ab2a40d3ffea5cfd612",
-    baseURL: "https://api.aimlapi.com",
+    apiKey: openAiKey,
+    baseURL: openAiUrl,
   });
 
   const adj1 = req.query.adj1;
@@ -150,5 +151,5 @@ app.get("/stopBruteForce", (req, res) => {
 });
 // Start the server and log the URL to the console
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Server running at ${port}/`);
 });
