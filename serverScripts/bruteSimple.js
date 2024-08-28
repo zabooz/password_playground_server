@@ -4,7 +4,7 @@ export function bruteForceSimple(targetPassword) {
   const maxLength = 16;
   let count = 0;
   let found = false;
-  const mode = "Simple";
+  const mode = "Einfach";
   const startTime = Date.now();
   let abort = false;
   let maxTime;

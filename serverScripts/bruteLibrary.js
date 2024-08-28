@@ -1,5 +1,5 @@
  export async function bruteForceLibrary(pwd,passwordList) {
-    const mode = 'Library'
+    const mode = 'Liste'
     let startTime = Date.now();
     let time;
     let count;
@@ -13,7 +13,7 @@
                 time = ((Date.now() - startTime)/1000) + ' sec';
                 break;
             }else if(i === passwordList.length - 1){
-                count = "not in list"
+                count = "Nicht in Liste"
                 time = ((Date.now() - startTime)/1000) + ' sec';
             }
 
