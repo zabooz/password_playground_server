@@ -18,6 +18,11 @@ const openAiUrl = process.env.OPENAI_URL
 const aiModel = process.env.AIMODEL
 app.use(cors());
 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 let passwordList;
 
 async function loadPasswordList() {
@@ -33,6 +38,27 @@ async function loadPasswordList() {
 }
 
 loadPasswordList();
+
+app.post('/proxy/submit', (req, res) => {
+  const options = {
+      url: 'https://staging.passwordplayground.com/submit.php',
+      method: 'POST',
+      form: req.body
+  };
+
+  // Anfrage an den Plesk-Server weiterleiten
+  request(options, (error, response, body) => {
+      if (error) {
+          return res.status(500).send('Fehler beim Weiterleiten der Anfrage.');
+      }
+      res.send(body);
+  });
+});
+
+
+
+
+
 
 app.get("/apiCall", async (req, res) => {
   const openai = new OpenAI({
