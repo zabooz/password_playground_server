@@ -14,8 +14,7 @@ const app = express(); // Create an Express application
 const port = process.env.PORT || 3000; // Set the port from the environment variable or default to 3000
 const dropboxFileUrl = process.env.DROPBOX_FILE_URL; // Set the Dropbox file URL from the environment variable
 const openAiKey = process.env.OPENAI_KEY
-const openAiUrl = process.env.OPENAI_URL
-const aiModel = process.env.AIMODEL
+
 app.use(cors());
 
 
@@ -39,20 +38,14 @@ async function loadPasswordList() {
 
 loadPasswordList();
 
-app.post('/proxy/submit', (req, res) => {
-  const options = {
-      url: 'https://staging.passwordplayground.com/submit.php',
-      method: 'POST',
-      form: req.body
-  };
-
-  // Anfrage an den Plesk-Server weiterleiten
-  request(options, (error, response, body) => {
-      if (error) {
-          return res.status(500).send('Fehler beim Weiterleiten der Anfrage.');
-      }
-      res.send(body);
-  });
+app.post('/proxy/submit', async (req, res) => {
+  try {
+      const response = await axios.post('https://staging.passwordplayground.com/submit.php', req.body);
+      res.send(response.data);
+  } catch (error) {
+      console.error('Fehler beim Weiterleiten der Anfrage:', error.message);
+      res.status(500).send('Fehler beim Weiterleiten der Anfrage.');
+  }
 });
 
 
