@@ -1,3 +1,4 @@
 # Ignoriere .env-Dateien
 .env
 .env.*
+node_modules

@@ -1,57 +1,81 @@
 import { config } from "dotenv";
 import express from "express";
-import axios from "axios";
-import cors from "cors";
 
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
 import { bruteForceSimple } from "./serverScripts/bruteSimple.js";
 import { bruteForceLibrary } from "./serverScripts/bruteLibrary.js";
 import { passwordDecoder } from "./serverScripts/encoder.js";
+import { updatePasswordList } from "./serverScripts/updateDropBox.js";
+import { loadPasswordList } from "./serverScripts/loadPasswordList.js";
 import OpenAI from "openai";
+import cron from "node-cron";
+
+const openAiKey = process.env.OPENAI_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const port = process.env.PORT || 3000; // Set the port from the environment variable or default to 3000
 
 config();
-
 const app = express(); // Create an Express application
-const port = process.env.PORT || 3000; // Set the port from the environment variable or default to 3000
-const dropboxFileUrl = process.env.DROPBOX_FILE_URL; // Set the Dropbox file URL from the environment variable
-const openAiKey = process.env.OPENAI_KEY
 
 app.use(cors());
-
-
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 
 let passwordList;
 
-async function loadPasswordList() {
+(async function loadPasswords() {
   try {
-    const response = await axios.get(dropboxFileUrl, {
-      responseType: "text",
-    });
-    passwordList = response.data.split("\n").filter((line) => line !== "");
-    console.log("data loaded");
+    passwordList = await loadPasswordList();
   } catch (error) {
-    console.error("dropbbox fail", error);
+    console.log("Error loading passwords:", error);
   }
-}
+})();
 
-loadPasswordList();
-
-app.post('/proxy/submit', async (req, res) => {
-  try {
-      const response = await axios.post('https://staging.passwordplayground.com/submit.php', req.body);
-      res.send(response.data);
-  } catch (error) {
-      console.error('Fehler beim Weiterleiten der Anfrage:', error.message);
-      res.status(500).send('Fehler beim Weiterleiten der Anfrage.');
-  }
+app.get("/", (req, res) => {
+  res.send("hello world");
 });
 
+app.post("/submitData", async (req, res) => {
+  console.log("Received request body:", req.body);
 
+  const { password } = req.body;
 
+  // Überprüfen, ob das Passwort bereits in der Datenbank vorhanden ist
+  const { data: existingPasswords, error: fetchError } = await supabase
+    .from("passwordplayground")
+    .select("*")
+    .eq("password", password);
 
+  if (fetchError) {
+    console.error("Fehler beim Überprüfen des Passworts:", fetchError);
+    return res.status(500).send("Fehler beim Überprüfen des Passworts");
+  }
 
+  // Prüfen, ob das Passwort bereits vorhanden ist
+  if (existingPasswords.length > 0) {
+    console.log("Passwort bereits vorhanden:", password);
+    return res.status(400).send("Passwort bereits vorhanden");
+  }
+
+  // Daten in die Tabelle 'passwordplayground' einfügen
+  const { data: insertedData, error: insertError } = await supabase
+    .from("passwordplayground")
+    .insert([{ password }])
+    .select("password");
+
+  if (insertError) {
+    console.error("Fehler beim Einfügen der Daten:", insertError);
+    return res.status(500).send("Fehler beim Einfügen der Daten");
+  }
+
+  passwordList.push(password);
+
+  console.log("Daten eingefügen:", insertedData);
+
+  res.status(200).json(insertedData);
+});
 
 app.get("/apiCall", async (req, res) => {
   const openai = new OpenAI({
@@ -65,10 +89,7 @@ app.get("/apiCall", async (req, res) => {
   const decodedPwd = passwordDecoder(pwd, key);
 
   try {
-
-    console.log()
     const chatCompletion = await openai.chat.completions.create({
-      
       model: "meta-llama/Meta-Llama-3-70B-Instruct-Lite",
       messages: [
         { role: "system", content: sysContent },
@@ -111,19 +132,13 @@ app.get("/apiCallUsername", async (req, res) => {
 
     const result = chatCompletion.choices[0].message.content;
     res.send(result);
-    console.log(result);
   } catch (error) {
-        console.error("Error in API call or processing:", error);
+    console.error("Error in API call or processing:", error);
 
-        res.status(500).json({
-          success: false,
-
-        });
+    res.status(500).json({
+      success: false,
+    });
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("hello world");
 });
 
 let currentProcess = null;
@@ -137,9 +152,6 @@ app.get("/bruteForceSimple", async (req, res) => {
   }
 
   currentProcess = bruteForceSimple(decodedPwd);
-
- 
-
 
   currentProcess.promise
     .then((result) => {
@@ -182,6 +194,12 @@ app.get("/stopBruteForce", (req, res) => {
     res.status(400).send("no process running");
   }
 });
+
+cron.schedule("0 0 * * *", () => {
+  console.log("Cron Job wird ausgeführt: updatePasswordList");
+  updatePasswordList(["neuesPassword1", "neuesPassword2"]); // Beispielwerte
+});
+
 // Start the server and log the URL to the console
 app.listen(port, () => {
   console.log(`Server running at ${port}/`);
