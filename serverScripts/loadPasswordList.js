@@ -13,10 +13,8 @@ export async function loadPasswordList() {
       });
 
       passwordList = response.data.split("\n").filter((line) => line !== "");
-  
       console.log("data loaded");
-      console.log(typeof passwordList)
-  
+
       
       
     } catch (error) {
