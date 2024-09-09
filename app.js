@@ -51,7 +51,7 @@ app.get("/", (req, res) => {
 
 
 app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password,email } = req.body;
   const saltRounds = 10;
 
   
@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const {data,error} = await supabase
       .from("passwordplayground")
-      .insert([{username,password_hash: hashedPassword}])
+      .insert([{username,password_hash: hashedPassword,email}])
     
       if (error) {
         console.log("Error:", error);
