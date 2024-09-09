@@ -18,4 +18,3 @@ export function authenticateToken(req, res, next) {
   });
 }
 
-// Beispiel einer geschützten Route

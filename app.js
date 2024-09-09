@@ -51,7 +51,7 @@ app.get("/", (req, res) => {
 
 
 app.post("/register", async (req, res) => {
-  const { username, password,email } = req.body;
+  const { username, password,email,visits,generatedPasswords,testedPasswords,generatedUsernames} = req.body;
   const saltRounds = 10;
 
   
@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const {data,error} = await supabase
       .from("passwordplayground")
-      .insert([{username,password_hash: hashedPassword,email}])
+      .insert([{username,password_hash: hashedPassword,email,visits,generatedPasswords,testedPasswords,generatedUsernames}])
     
       if (error) {
         console.log("Error:", error);
@@ -80,7 +80,7 @@ app.post("/logIn", async (req, res) => {
     // Hole den Benutzer aus der Datenbank
     const { data, error } = await supabase
       .from("passwordplayground")
-      .select("password_hash")
+      .select("password_hash,id")
       .eq("username", username)
       .single();
 
@@ -94,13 +94,13 @@ app.post("/logIn", async (req, res) => {
       return res.status(401).json({ success: false, message: "Ungültige Anmeldedaten" });
     }
 
-
+ 
     // Passwortvergleich
     const match = await bcrypt.compare(password, data.password_hash);
 
     if (match) {
       console.log("Login erfolgreich");
-      const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ username ,id:data.id }, JWT_SECRET, { expiresIn: '1h' });
       res.status(200).json({ success: true, message: "Login erfolgreich",token });
     } else {
       console.log("Ungültige Anmeldedaten");
@@ -117,7 +117,7 @@ app.delete('/deleteUser', authenticateToken, async (req, res) => {
   try {
     // Benutzer-ID aus dem Token extrahieren
     const username = req.user.username; // Annahme: `req.user` enthält die Benutzer-ID
-    console.log(username)
+
     // Benutzer aus der Datenbank löschen
     const { error } = await supabase
       .from('passwordplayground')
@@ -139,7 +139,7 @@ app.delete('/deleteUser', authenticateToken, async (req, res) => {
 
 
 app.get('/user', authenticateToken, (req, res) => {
-  res.status(200).json({ username: req.user.username });
+  res.status(200).json({ username: req.user.username,id :req.user.id });
 });
 
 
@@ -153,18 +153,57 @@ app.get('/user', authenticateToken, (req, res) => {
 
 
 
-app.post("/dataKraken", async (req, res) => {
-  console.log("Received request body:", req.body);
-  const { password } = req.body;
-  try {
-    const result = await bruteForceLibrary(password,passwordList)
-    result[1] === "Nicht in Liste" ? passwordList.push(password) : null
-  
-  } catch (error){
-    console.log("Error:", error);
-  }
+app.post("/dataKrakenTakes", async (req, res) => {
 
+  if(!req.body.token) {
+    return res.status(401).json({ success: false, message: 'Kein Token vorhanden' });
+  }
+  const token = jwt.decode(req.body.token);
+  const id = token.id; // ID aus dem Token
+  const col = req.body.col; // Name der Spalte, die erhöht werden soll
+
+  try {
+    // Hole den aktuellen Wert der Spalte
+    const { data: currentData, error: fetchError } = await supabase
+      .from('passwordplayground')
+      .select(col)
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Fehler beim Abrufen der aktuellen Daten:', fetchError);
+      return res.status(500).json({ success: false, message: 'Fehler beim Abrufen der Daten' });
+    }
+
+    if (!currentData) {
+      console.log('Datensatz nicht gefunden');
+      return res.status(404).json({ success: false, message: 'Datensatz nicht gefunden' });
+    }
+
+    // Erhöhe den Wert der Spalte um 1
+    const newValue = (currentData[col] || 0) + 1;
+
+
+    // Aktualisiere die Zeile
+    const { data: updatedData, error: updateError } = await supabase
+      .from('passwordplayground')
+      .update({ [col]: newValue })
+      .eq('id', id)
+      .select(); // Verwende .select(), um die aktualisierten Daten abzurufen
+
+    if (updateError) {
+      console.error('Fehler beim Erhöhen des Wertes:', updateError);
+      return res.status(500).json({ success: false, message: 'Fehler beim Erhöhen des Wertes' });
+    }
+
+    res.status(200).json({ success: true, message: 'Wert erfolgreich erhöht', data: updatedData });
+  } catch (error) {
+    console.error('Fehler bei der Anfrage:', error);
+    res.status(500).json({ success: false, message: 'Fehler bei der Anfrage' });
+  }
 });
+
+
 
 
 
