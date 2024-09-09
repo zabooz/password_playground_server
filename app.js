@@ -27,7 +27,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let passwordList;  // variable for BruteforceLibrary and to update password list  
+let passwordList; 
 
 
 
@@ -266,27 +266,29 @@ app.get("/apiCallUsername", async (req, res) => {
 
 
 
-let currentProcess = null;
+const currentProcess = {}
+
+
 
 app.get("/bruteForceSimple", async (req, res) => {
   const key = req.query.key;
   const password = req.query.pwd || "abc";
   const decodedPwd = passwordDecoder(password, key);
-  if (currentProcess) {
+  if (currentProcess[password]) {
     return res.status(400).send("Ein Prozess läuft bereits.");
   }
 
-  currentProcess = bruteForceSimple(decodedPwd);
+  currentProcess[password] = bruteForceSimple(decodedPwd);
 
-  currentProcess.promise
+  currentProcess[password].promise
     .then((result) => {
       res.send(result);
-      currentProcess = null;
+      currentProcess[password] = null;
     })
     .catch((error) => {
       console.error(error);
       res.status(500).send("error occured during brute force process");
-      currentProcess = null;
+      currentProcess[password] = null;
     });
 });
 
@@ -309,9 +311,13 @@ app.get("/bruteForceLibrary", async (req, res) => {
 });
 
 app.get("/stopBruteForce", (req, res) => {
-  if (currentProcess) {
-    currentProcess.abort();
-    currentProcess = null;
+
+  const key = req.query.key;
+
+  console.log(key)
+  if (currentProcess[key]) {
+    currentProcess[key].abort();
+    currentProcess[key] = null;
     res.send("process stopped");
     console.log("brute force stopped");
   } else {
@@ -342,7 +348,7 @@ app.get("/stopBruteForce", (req, res) => {
 
 cron.schedule("0 0 * * *", () => {
   console.log("Cron Job wird ausgeführt: updatePasswordList");
-  updatePasswordList(["neuesPassword1", "neuesPassword2"]); // Beispielwerte
+  updatePasswordList(passwordList); 
 });
 
 
