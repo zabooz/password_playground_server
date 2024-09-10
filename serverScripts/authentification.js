@@ -13,7 +13,7 @@ export function authenticateToken(req, res, next) {
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Ungültiges Token' });
 
-    req.user = user; // Setze die Benutzerinformationen für den nächsten Middleware
+    req.user = user; 
     next();
   });
 }

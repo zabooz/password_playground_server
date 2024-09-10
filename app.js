@@ -205,7 +205,53 @@ app.post("/dataKrakenTakes", async (req, res) => {
 
 
 
+app.get("/dataKrakenGives",authenticateToken, async (req, res) => {
 
+
+  try{
+    const {data,error} = await supabase
+    .from("passwordplayground")
+    .select("username,email,visits,generatedPasswords,testedPasswords,generatedUsernames,avatar")
+    .eq('id', req.user.id)
+
+    if(data){
+      res.status(200).json({ success: true, message: 'Daten erfolgreich geladen', data });
+    }else{
+      console.log(error)
+    }
+
+
+  } catch (error) {
+    console.error("Fehler bei der Anfrage:", error);
+    res.status(500).json({ success: false, message: 'Fehler bei der Anfrage' });
+  }
+
+})
+
+app.put("/dataKrakenTrades",authenticateToken, async (req, res) => {
+
+
+  console.log(req.body)
+
+      try{
+        const {data,error} = await supabase
+        .from("passwordplayground")
+        .update({ [req.body.key]: req.body.value })
+        .eq('id', req.user.id)
+
+        res.status(200).json({ success: true, message: 'Benuzterdaten erfolgreich geändert'});
+      } catch (error) {
+        console.error("Fehler bei der Anfrage:", error);
+        res.status(500).json({ success: false, message: 'Fehler bei der Anfrage' });
+      }
+
+
+
+
+
+
+
+})
 
 // ============================================
 
