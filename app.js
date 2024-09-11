@@ -251,25 +251,39 @@ app.post("/dataKrakenTakes", authenticateToken, async (req, res) => {
 
 app.get("/dataKrakenGives", authenticateToken, async (req, res) => {
 
-  try {
-    const { data, error } = await supabase
-      .from("passwordplayground")
-      .select(
-        "username,email,visits,generated_passwords,tested_passwords,generated_usernames,avatar"
-      )
-      .eq("id", req.user.id);
-
-    if (data) {
-      res
-        .status(200)
-        .json({ success: true, message: "Daten erfolgreich geladen", data });
-    } else {
-      console.log(error);
+  if(req.query.col !== "undefined"){
+    const username = req.user.username
+    const col = req.query.col; 
+    try{
+      const response = await leaderBoard(username,col)
+      if(response){
+        res.status(200).json({success: true, message: "Leaderboard erfolgreich geladen", data: response})
+      }
+    }catch (error){
+      console.log(error)
     }
-  } catch (error) {
-    console.error("Fehler bei der Anfrage:", error);
-    res.status(500).json({ success: false, message: "Fehler bei der Anfrage" });
+  }else{
+    try {
+      const { data, error } = await supabase
+        .from("passwordplayground")
+        .select(
+          "username,email,visits,generated_passwords,tested_passwords,generated_usernames,avatar"
+        )
+        .eq("id", req.user.id);
+  
+      if (data) {
+        res
+          .status(200)
+          .json({ success: true, message: "Daten erfolgreich geladen", data });
+      } else {
+        console.log(error);
+      }
+    } catch (error) {
+      console.error("Fehler bei der Anfrage:", error);
+      res.status(500).json({ success: false, message: "Fehler bei der Anfrage" });
+    }
   }
+
 });
 
 app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
@@ -301,20 +315,7 @@ app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
 app.get("/dataKrakenBestow", authenticateToken, async (req, res) => {
 
 
-    const username = req.user.username
 
-    try{
-
-      const response = await leaderBoard(username)
-
-      if(response){
-        res.status(200).json({success: true, message: "Leaderboard erfolgreich geladen", data: response})
-      }
-
-    }catch (error){
-
-      console.log(error)
-    }
        
 
 
