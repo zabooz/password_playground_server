@@ -88,7 +88,7 @@ app.post("/logIn", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Hole den Benutzer aus der Datenbank
+
     const { data, error } = await supabase
       .from("passwordplayground")
       .select("password_hash,id,avatar")
@@ -109,7 +109,7 @@ app.post("/logIn", async (req, res) => {
         .json({ success: false, message: "Ungültige Anmeldedaten" });
     }
 
-    // Passwortvergleich
+
     const match = await bcrypt.compare(password, data.password_hash);
 
     if (match) {
@@ -197,14 +197,10 @@ app.get("/user", authenticateToken, async (req, res) => {
 
 // ===============================================================
 
-app.post("/dataKrakenTakes", async (req, res) => {
-  if (!req.body.token) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Kein Token vorhanden" });
-  }
-  const token = jwt.decode(req.body.token);
-  const id = token.id; // ID aus dem Token
+app.post("/dataKrakenTakes", authenticateToken, async (req, res) => {
+
+  
+  const id = req.user.id // ID aus dem Token
   const col = req.body.col; // Name der Spalte, die erhöht werden soll
 
   try {
@@ -303,18 +299,17 @@ app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
   }
 });
 app.get("/dataKrakenBestow", authenticateToken, async (req, res) => {
-    console.log(req.user.id)
 
+
+    const username = req.user.username
 
     try{
 
-      const response = await leaderBoard()
+      const response = await leaderBoard(username)
 
       if(response){
-
         res.status(200).json({success: true, message: "Leaderboard erfolgreich geladen", data: response})
       }
-
 
     }catch (error){
 

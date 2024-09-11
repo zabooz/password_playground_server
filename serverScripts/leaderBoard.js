@@ -5,7 +5,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-export const  leaderBoard = async () => {
+export const  leaderBoard = async (username) => {
 
 let finalResult;
 try {
@@ -21,16 +21,15 @@ try {
   }
 
   // Überprüfen, ob der Benutzer mit ID 31 in den Top 10 ist
-  const userInTopTen = topTen.some((entry) => entry.id === 31);
+  const userInTopTen = topTen.some((entry) => entry.username === username);
 
   finalResult = [...topTen];
-
   // Falls der Benutzer mit ID 31 nicht in den Top 10 ist, diesen separat abrufen
   if (!userInTopTen) {
     const { data: user, error: userError } = await supabase
       .from("passwordplayground")
       .select("username,visits,generated_passwords,tested_passwords,generated_usernames")
-      .eq("id", 31)
+      .eq("username", username)
       .single(); // Nur ein Datensatz für ID 31
 
     if (userError) {
