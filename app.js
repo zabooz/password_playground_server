@@ -10,6 +10,7 @@ import { passwordDecoder } from "./serverScripts/encoder.js";
 import { updatePasswordList } from "./serverScripts/updateDropBox.js";
 import { loadPasswordList } from "./serverScripts/loadPasswordList.js";
 import { authenticateToken } from "./serverScripts/authentification.js";
+import { leaderBoard } from "./serverScripts/leaderBoard.js";
 import OpenAI from "openai";
 import cron from "node-cron";
 
@@ -179,7 +180,7 @@ app.get("/user", authenticateToken, async (req, res) => {
     .select("avatar")
     .eq("id", req.user.id);
 
-  console.log(data);
+
 
   res
     .status(200)
@@ -253,11 +254,12 @@ app.post("/dataKrakenTakes", async (req, res) => {
 });
 
 app.get("/dataKrakenGives", authenticateToken, async (req, res) => {
+
   try {
     const { data, error } = await supabase
       .from("passwordplayground")
       .select(
-        "username,email,visits,generatedPasswords,testedPasswords,generatedUsernames,avatar"
+        "username,email,visits,generated_passwords,tested_passwords,generated_usernames,avatar"
       )
       .eq("id", req.user.id);
 
@@ -284,7 +286,7 @@ app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
     key = "password_hash";
   }
 
-  console.log(key, value);
+
 
   try {
     const { data, error } = await supabase
@@ -300,7 +302,29 @@ app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
     res.status(500).json({ success: false, message: "Fehler bei der Anfrage" });
   }
 });
+app.get("/dataKrakenBestow", authenticateToken, async (req, res) => {
+    console.log(req.user.id)
 
+
+    try{
+
+      const response = await leaderBoard()
+
+      if(response){
+
+        res.status(200).json({success: true, message: "Leaderboard erfolgreich geladen", data: response})
+      }
+
+
+    }catch (error){
+
+      console.log(error)
+    }
+       
+
+
+
+})
 // ============================================
 
 //     API CALL AI/ML
