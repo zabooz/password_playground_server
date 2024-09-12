@@ -45,9 +45,9 @@ app.post("/register", async (req, res) => {
     password,
     email,
     visits,
-    generatedPasswords,
-    testedPasswords,
-    generatedUsernames,
+    generated_passwords,
+    tested_passwords,
+    generated_usernames,
   } = req.body;
   const saltRounds = 10;
 
@@ -61,9 +61,9 @@ app.post("/register", async (req, res) => {
           password_hash: hashedPassword,
           email,
           visits,
-          generatedPasswords,
-          testedPasswords,
-          generatedUsernames,
+          generated_passwords,
+          tested_passwords,
+          generated_usernames,
         },
       ]);
 
