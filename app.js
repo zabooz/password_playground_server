@@ -75,7 +75,7 @@ app.post("/register", async (req, res) => {
         .status(500)
         .json({ success: false, message: "Registrierung fehlgeschlagen" });
     }
-
+    console.log("Registration successful");
     res
       .status(200)
       .json({ success: true, message: "Registrierung erfolgreich" });
