@@ -48,6 +48,7 @@ app.post("/register", async (req, res) => {
     generated_passwords,
     tested_passwords,
     generated_usernames,
+    avatar
   } = req.body;
   const saltRounds = 10;
 
@@ -64,6 +65,7 @@ app.post("/register", async (req, res) => {
           generated_passwords,
           tested_passwords,
           generated_usernames,
+          avatar
         },
       ]);
 
