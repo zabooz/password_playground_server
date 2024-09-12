@@ -27,9 +27,11 @@ try {
   // Falls der Benutzer mit ID 31 nicht in den Top 10 ist, diesen separat abrufen
   if (!userInTopTen) {
     const { data: users, error: usersError } = await supabase
-    .from("passwordplayground")
-    .select("username, visits, generated_passwords, tested_passwords, generated_usernames")
-    .order(col, { ascending: false });
+      .from("passwordplayground")
+      .select(
+        "username, visits,tested_passwords, generated_passwords,  generated_usernames"
+      )
+      .order(col, { ascending: false });
 
   if (usersError) {
     console.error("Error fetching users:", usersError);
