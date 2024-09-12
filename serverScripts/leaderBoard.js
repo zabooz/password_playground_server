@@ -12,7 +12,9 @@ try {
   // Abrufen der Top 10 Einträge sortiert nach 'visits'
   const { data: topTen, error: topTenError } = await supabase
     .from("passwordplayground")
-    .select("username,visits,generated_passwords,tested_passwords,generated_usernames")
+    .select(
+      "username,visits,tested_passwords,generated_passwords,generated_usernames"
+    )
     .order(col, { ascending: false })
     .limit(10);
 
