@@ -96,7 +96,7 @@ app.post("/logIn", async (req, res) => {
       .select("password_hash,id,avatar")
       .eq("username", username)
       .single();
-
+ 
     if (error) {
       console.error("Fehler bei der Abfrage:", error);
       return res
@@ -204,7 +204,7 @@ app.post("/dataKrakenTakes", authenticateToken, async (req, res) => {
   
   const id = req.user.id // ID aus dem Token
   const col = req.body.col; // Name der Spalte, die erhöht werden soll
-
+  console.log(col,id)
   try {
     // Hole den aktuellen Wert der Spalte
     const { data: currentData, error: fetchError } = await supabase
@@ -292,12 +292,12 @@ app.put("/dataKrakenTrades", authenticateToken, async (req, res) => {
   let key = req.body.key;
   let value = req.body.value;
   const id = req.user.id;
+
   if (key === "password") {
     const saltRounds = 10;
     value = await bcrypt.hash(value, saltRounds);
     key = "password_hash";
   }
-
 
 
   try {
@@ -427,7 +427,7 @@ app.get("/bruteForceLibrary", async (req, res) => {
   const key = req.query.key;
   const password = req.query.pwd;
   const decodedPwd = passwordDecoder(password, key);
-  console.log("PWD:", password, "decoded:", decodedPwd);
+  console.log("PWD:", password, "decoded:", decodedPwd ,"key:",key);
   try {
     const result = await bruteForceLibrary(decodedPwd, passwordList);
     console.log(result);
@@ -443,7 +443,7 @@ app.get("/bruteForceLibrary", async (req, res) => {
 app.get("/stopBruteForce", (req, res) => {
   const key = req.query.key;
 
-  console.log(key);
+
   if (currentProcess[key]) {
     currentProcess[key].abort();
     currentProcess[key] = null;
@@ -468,10 +468,10 @@ app.get("/stopBruteForce", (req, res) => {
   }
 })();
 
-cron.schedule("0 0 * * *", () => {
-  console.log("Cron Job wird ausgeführt: updatePasswordList");
-  updatePasswordList(passwordList);
-});
+// cron.schedule("0 0 * * *", () => {
+//   console.log("Cron Job wird ausgeführt: updatePasswordList");
+//   updatePasswordList(passwordList);
+// });
 
 // =======================================
 
