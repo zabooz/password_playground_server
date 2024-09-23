@@ -332,7 +332,7 @@ app.get("/dataKrakenBestow", authenticateToken, async (req, res) => {
 app.get("/apiCall", async (req, res) => {
   const openai = new OpenAI({
     apiKey: openAiKey,
-    baseURL: "https://api.aimlapi.com",
+    baseURL: "https://api.aimlapi.com/v1",
   });
 
   const key = req.query.key;

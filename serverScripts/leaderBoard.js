@@ -13,7 +13,7 @@ try {
   const { data: topTen, error: topTenError } = await supabase
     .from("passwordplayground")
     .select(
-      "username,visits,tested_passwords,generated_passwords,generated_usernames"
+      "username,visits,tested_passwords,generated_passwords,generated_usernames,avatar"
     )
     .order(col, { ascending: false })
     .limit(10);
@@ -31,7 +31,7 @@ try {
     const { data: users, error: usersError } = await supabase
       .from("passwordplayground")
       .select(
-        "username, visits,tested_passwords, generated_passwords,  generated_usernames"
+        "username, visits,tested_passwords, generated_passwords,  generated_usernames,avatar"
       )
       .order(col, { ascending: false });
 
